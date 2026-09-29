@@ -8,6 +8,7 @@ from .signals import build_signals
 from .reasoning import window_engine, resolve
 from . import __version__
 from .readings import build_readings
+from .diagnostics import diagnostic_views
 
 POLICY_PATH=Path(__file__).parent/"policy.json"
 
@@ -28,6 +29,7 @@ class SummerEngine:
         signals=build_signals(request,bundle,self.policy)
         windows,timeline=window_engine(signals,request.start,request.end,self.policy)
         candidates=resolve(windows,signals,bundle["sensitivity"],request,self.policy)
+        raw_signals,domain_ranking=diagnostic_views(signals,timeline,windows,candidates,self.policy)
         qualified=[c for c in candidates if c["status"]=="qualified"]
         ranked=sorted(qualified,key=lambda c:(-c["activation_score"],-c["personal_relevance"],c["forecast_id"]))
         displayed=ranked[:request.max_display]
@@ -46,7 +48,7 @@ class SummerEngine:
             "status":"qualified-forecasts" if qualified else "no-qualified-forecast",
             "forecast_kind":"prospective" if request.start>=request.as_of.astimezone(request.birth.instant().tzinfo).date() else "retrospective-development",
             "release_status":"experimental-unvalidated","birth_calculations":bundle,
-            "raw_signals":[s.to_dict() for s in signals],"raw_windows":windows,
+            "raw_signals":raw_signals,"domain_ranking":domain_ranking,"raw_windows":windows,
             "all_candidates":[{**c,"personal_relevance":.5} for c in candidates],
             "daily_activation":timeline,
             "diagnostics":{"signal_count":len(signals),"window_count":len(windows),
@@ -56,7 +58,7 @@ class SummerEngine:
                 "excluded_families":request.exclude_families,"probability_available":False,
                 "expected_layers":list(self.policy["family_weights"]),
                 "missing_data_is_not_zero":True},
-            "qualification_policy":{k:self.policy[k] for k in ["qualification_score","ambiguity_margin","min_input_stability"]}}
+            "qualification_policy":{k:self.policy[k] for k in ["threshold_enter","threshold_exit","qualification_score","ambiguity_margin","min_input_stability"]}}
         readings=build_readings(candidates,request.max_display,self.policy['ambiguity_margin'],self.policy['qualification_score'])
         # Immutable computational record is independent of presentation cap/relevance.
         if self.store: self.store.append(run_id,"forecast",request.as_of.isoformat(),core)
