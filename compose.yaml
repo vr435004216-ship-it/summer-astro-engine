@@ -1,0 +1,14 @@
+services:
+  engine:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      SUMMER_API_TOKEN: ${SUMMER_API_TOKEN:?Set a private service key}
+      SUMMER_DB: /data/forecasts.sqlite
+    volumes:
+      - forecasts:/data
+    restart: unless-stopped
+    stop_grace_period: 60s
+volumes:
+  forecasts:

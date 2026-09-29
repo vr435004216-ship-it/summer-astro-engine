@@ -7,3 +7,4 @@ examples/
 .env
 *.sqlite
 *.sqlite-*
+summer_astro/ephe/*.se1

@@ -1,0 +1,19 @@
+# Trial service. SQLite records are ephemeral on Render's free web plan.
+# Production needs persistent storage before prospective validation.
+services:
+  - type: web
+    name: summer-astro-engine
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements-lock.txt && python deployment/fetch_ephemeris.py
+    startCommand: python -m uvicorn summer_astro.api:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: SUMMER_API_TOKEN
+        generateValue: true
+      - key: SUMMER_DB
+        value: /tmp/summer-astro/forecasts.sqlite

@@ -1,0 +1,13 @@
+Summer Astro Engine 2.0.0
+New engine code: AGPL-3.0-or-later.
+Swiss Ephemeris calculation library and ephemeris data:
+Copyright Astrodienst AG; see LICENSE-SWISSEPH.
+pyswisseph: see its installed package license (AGPL).
+
+Calculation conventions D4/D9/D10/D16 and Vimshottari year basis were reviewed
+against the user's astro_math_core_v1_3.py. No trained legacy calibration model,
+historical event database, or legacy final resolver is shipped in runtime.
+The source audit contains original-file hashes and corrections.
+
+Other dependencies retain their own package licenses.
+The source of this service is included in this distribution.
