@@ -61,7 +61,7 @@ def profections(request, chart, policy):
         support=support_for_houses(related,policy)
         signals.append(make_signal("profection","tropical",f"profection:{year}",
             [f"birth:{chart['instant_utc']}",f"profection:{year}"],"PROFECTION-1",start,end,.82,support,
-            metadata={"lord":lord,"activated_house":h,"age":age,"temporal_role":"background"}))
+            metadata={"lord":lord,"activated_house":h,"house_evidence":sorted(related),"age":age,"temporal_role":"background"}))
     return signals
 
 def dasha_intervals(sidereal, instant, start, end, year_days):
@@ -105,7 +105,7 @@ def dashas(request, chart, policy):
             ["natal-moon:"+str(round(chart["planets"]["Moon"]["longitude"],8))],"DASHA-1",
             local_start,local_end,{"MD":.58,"AD":.76,"PD":.88}[level],support_for_houses(houses,policy),
             metadata={"level":level,"lords":lords,"start_exact":start.isoformat(),"end_exclusive":end.isoformat(),
-                "year_days":policy["dasha_year_days"],"temporal_role":"background",
+                "year_days":policy["dasha_year_days"],"house_evidence":sorted(houses),"temporal_role":"background",
                 "boundary_is_not_an_event":True}))
     return signals
 
@@ -186,6 +186,8 @@ def transits(request, natal, policy):
                 group[0][0],group[-1][0],max(daily.values()),support,transit_axes(planet,aspect),
                 metadata={"planet":planet,"target":target,"aspect":aspect,"orb":orb,
                     "daily_strength":daily,"peak_day":peak[0].isoformat(),"exact_times":sorted(set(exact)),
+                    "minimum_sampled_orb_degrees":round(peak[1],8),
+                    "daily_orb_degrees":{d.isoformat():round(error,8) for d,error,_,_ in group},
                     "temporal_role":"trigger","precision":"daily-sampled orb; exact root when bracketed",
                     "state_action":"unknown"}))
     return result
