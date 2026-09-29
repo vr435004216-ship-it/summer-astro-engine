@@ -1,4 +1,4 @@
-# Summer Astro Engine 2.0.0
+# Summer Astro Engine 2.0.1
 
 نسخة مستقلة قابلة للتشغيل عبر API وواجهة متصفح وCLI. أعيد بناء التفسير فوق Swiss Ephemeris، مع الحفاظ على حساب Whole Sign وLahiri وVarga وVimshottari وتصحيح UTC ومعالجة Solar Return لأي شهر ميلاد. ليست مجرد مواصفة.
 
@@ -15,7 +15,7 @@ export SUMMER_API_TOKEN="your-private-service-key"
 python -m uvicorn summer_astro.api:app --host 127.0.0.1 --port 8000 --workers 1
 ```
 
-افتح http://127.0.0.1:8000 ثم أدخل المفتاح. اترك هامش وقت الميلاد فارغًا إن لم تعرفه؛ ستظهر النتائج غير المؤهلة بسبب نقص معلومات الحساسية. لا تضع هامشًا صفريًا لتحسين النتيجة دون أساس.
+افتح http://127.0.0.1:8000 ثم أدخل المفتاح. اترك هامش وقت الميلاد فارغًا إن لم تعرفه؛ ستظهر قراءة الإشارات مع توضيح أن الحساسية لم تختبر، وتبقى التوقعات المحددة غير مؤهلة بسبب نقص معلومات الحساسية. لا تضع هامشًا صفريًا لتحسين النتيجة دون أساس.
 
 تشغيل Docker:
 
@@ -31,10 +31,14 @@ Compose يربط المنفذ محليًا ويستخدم volume دائمًا ل
 ## CLI
 
 ```bash
-python -m summer_astro.cli forecast request.json --output reports/forecast.json
-python -m summer_astro.cli ablation request.json --output reports/ablation.json
-python -m summer_astro.cli evaluate evaluation.json --output reports/evaluation.json
+python -m summer_astro.cli forecast examples/summer_request.json --output reports/forecast.json
+python -m summer_astro.cli ablation examples/summer_request.json --output reports/ablation.json
+python -m summer_astro.cli evaluate examples/evaluation_empty.json --output reports/evaluation.json
 ```
+
+## القراءة العربية في 2.0.1
+
+يعرض displayed_readings وtext_output قراءة عربية للمرشحين، بما في ذلك المجالات المتقاربة والبيانات غير المحسومة. تبقى displayed_events للتوقعات المؤهلة فقط؛ لا يتغير التأهيل أو الدرجات بسبب عرض القراءة. الأمثلة تشرح معنى المجال وليست أحداثًا مستنتجة. اختيار المستخدم للمجال الأقرب يحفظ في الملف المنزّل تحت user_interpretation_review، ولا يدخل الأدلة الفلكية أو سجل التوقع الأصلي.
 
 ## ما تم تنفيذه
 

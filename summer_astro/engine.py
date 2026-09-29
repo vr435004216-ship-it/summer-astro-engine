@@ -5,8 +5,9 @@ import importlib.metadata
 from .contracts import ForecastRequest, digest
 from .astronomy import birth_bundle
 from .signals import build_signals
-from .reasoning import window_engine, resolve, render
+from .reasoning import window_engine, resolve
 from . import __version__
+from .readings import build_readings
 
 POLICY_PATH=Path(__file__).parent/"policy.json"
 
@@ -56,7 +57,10 @@ class SummerEngine:
                 "expected_layers":list(self.policy["family_weights"]),
                 "missing_data_is_not_zero":True},
             "qualification_policy":{k:self.policy[k] for k in ["qualification_score","ambiguity_margin","min_input_stability"]}}
+        readings=build_readings(candidates,request.max_display,self.policy['ambiguity_margin'],self.policy['qualification_score'])
         # Immutable computational record is independent of presentation cap/relevance.
         if self.store: self.store.append(run_id,"forecast",request.as_of.isoformat(),core)
         return {**core,"displayed_events":displayed,"display_count":len(displayed),
-            "max_display":request.max_display,"text_output":render(displayed)}
+            "max_display":request.max_display,"reading_status":"readings-available" if readings else "no-active-windows",
+            "displayed_readings":readings,"reading_count":len(readings),
+            "text_output":[{"forecast_id":r["forecast_id"],"text":r["summary"]} for r in readings]}
