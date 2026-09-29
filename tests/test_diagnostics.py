@@ -1,9 +1,18 @@
 from datetime import date
+import pytest
 from summer_astro.engine import SummerEngine, load_policy
 from summer_astro.contracts import DOMAINS
 from summer_astro.signals import make_signal
 from summer_astro.reasoning import window_engine, aggregate
 from summer_astro.diagnostics import diagnostic_views
+
+
+@pytest.fixture
+def request_data():
+    # Synthetic public fixture; never publish the owner's birth data.
+    return {"birth": {"date": "2000-01-01", "time": "12:00", "timezone": "UTC",
+                     "latitude": 40.0, "longitude": 0.0, "uncertainty_minutes": None},
+            "start": "2026-10-01", "end": "2026-10-31", "as_of": "2026-09-29T20:00:00Z"}
 
 
 def test_single_day_raw_complete_without_reading(request_data):
