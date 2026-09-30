@@ -47,3 +47,8 @@ class ForecastStore:
     def counts(self):
         with self.connect() as con:
             return {r["kind"]:r["n"] for r in con.execute("SELECT kind,count(*) AS n FROM records GROUP BY kind")}
+
+    def list_kind(self, kind):
+        with self.connect() as con:
+            ids=[r["id"] for r in con.execute("SELECT id FROM records WHERE kind=? ORDER BY recorded_at,id",(kind,))]
+        return [self.get(record_id) for record_id in ids]

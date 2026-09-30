@@ -80,7 +80,7 @@ def diagnostic_views(signals, timeline, windows, candidates, policy):
             if not any(r["trigger_ids"] for r in rows): reasons.append("no_trigger_for_domain")
             if score < policy["threshold_enter"]: reasons.append("below_window_entry_threshold")
         qualified = any(c["status"] == "qualified" and c["primary_domain"] == domain for c in linked)
-        ranking.append({"domain": domain, "score": score,
+        ranking.append({"domain": domain, "score": score, "detection_status": "no_astrological_detector" if domain in {"vehicle", "loss"} else "heuristic_domain_rules",
             "score_before_dependence_correction": round(max(0, before), 6),
             "score_after_dependence_correction": score, "score_comparison_day": peak["day"] if peak else None,
             "score_basis": "maximum daily adjusted support within requested interval; unadjusted sum on the same day",

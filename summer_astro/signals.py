@@ -170,11 +170,13 @@ def transits(request, natal, policy):
             orb=policy["transit_orbs"][planet]
             daily={d.isoformat():round(policy["transit_base"][planet]*(.75+.25*(1-error/orb)),6) for d,error,_,_ in group}
             exact=[]
-            for left,right in zip(group,group[1:]):
+            for sample in group:
                 deg=ASPECTS[aspect]
-                exact_lon=min([(targets[target]+deg)%360,(targets[target]-deg)%360],key=lambda x:angle(x,left[3]))
+                exact_lon=min([(targets[target]+deg)%360,(targets[target]-deg)%360],key=lambda x:angle(x,sample[3]))
                 def residual(value): return (pos(value)[planet][0]-exact_lon+180)%360-180
-                lo,hi=left[2],right[2];a,b=residual(lo),residual(hi)
+                lo=jd(datetime.combine(sample[0],datetime.min.time(),tzinfo=request.birth.instant().tzinfo))
+                hi=jd(datetime.combine(sample[0]+timedelta(days=1),datetime.min.time(),tzinfo=request.birth.instant().tzinfo))
+                a,b=residual(lo),residual(hi)
                 if a*b<=0 and abs(a-b)<180:
                     for _ in range(30):
                         mid=(lo+hi)/2;c=residual(mid)
@@ -188,7 +190,7 @@ def transits(request, natal, policy):
                     "daily_strength":daily,"peak_day":peak[0].isoformat(),"exact_times":sorted(set(exact)),
                     "minimum_sampled_orb_degrees":round(peak[1],8),
                     "daily_orb_degrees":{d.isoformat():round(error,8) for d,error,_,_ in group},
-                    "temporal_role":"trigger","precision":"daily-sampled orb; exact root when bracketed",
+                    "temporal_role":"trigger","precision":"daily-sampled orb at 12:00 UTC; exact root bracketed within birth-zone calendar day",
                     "state_action":"unknown"}))
     return result
 

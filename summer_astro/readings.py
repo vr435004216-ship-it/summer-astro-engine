@@ -11,7 +11,7 @@ NAMES = {
     'work_routine':'روتين العمل', 'partnership':'الشراكات', 'marriage':'الزواج',
     'shared_resources':'الموارد المشتركة', 'career_role':'الدور المهني',
     'career_status':'المكانة المهنية', 'friendship':'الصداقات', 'networks':'شبكات العلاقات',
-    'withdrawal':'العزلة والانسحاب', 'unknown':'مجال غير محدد'
+    'withdrawal':'العزلة والانسحاب', 'loss':'الفقد', 'unknown':'مجال غير محدد'
 }
 EXAMPLES = {
     'education':'نشاط دراسي أو تدريبي، أو تحضير متعلق بالتعلم.',

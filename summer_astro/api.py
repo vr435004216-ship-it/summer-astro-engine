@@ -17,6 +17,7 @@ from .engine import SummerEngine, load_policy
 from .astronomy import verify_ephemeris
 from .storage import ForecastStore
 from . import __version__
+from .historical import HistoricalTest, record_test, report_tests
 
 class Outcome(Strict):
     event_id: str
@@ -88,6 +89,19 @@ def create_app(data_path=None,token=None):
 
     @app.get("/policy",dependencies=[Depends(auth)])
     def policy(): return load_policy()
+
+    @app.post("/historical-tests",dependencies=[Depends(auth)])
+    def historical_test(value: HistoricalTest):
+        try: return record_test(store,value)
+        except ValueError as e: raise HTTPException(422,str(e))
+
+    @app.get("/historical-tests",dependencies=[Depends(auth)])
+    def historical_report(engine_version: str | None=None):
+        return report_tests(store,engine_version)
+
+    @app.get("/historical-tests/export",dependencies=[Depends(auth)])
+    def historical_export():
+        return {"records":store.list_kind("historical_test"),"format":"immutable-labeled-tests-1"}
 
     @app.post("/forecast",dependencies=[Depends(auth)])
     async def forecast(request: ForecastRequest):

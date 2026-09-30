@@ -66,7 +66,7 @@ DOMAINS = {
     "travel_short", "travel_long", "relocation", "education",
     "communication", "family", "home_residence", "romance", "children",
     "health", "work_routine", "partnership", "marriage", "shared_resources",
-    "career_role", "career_status", "friendship", "networks", "withdrawal", "unknown"
+    "career_role", "career_status", "friendship", "networks", "withdrawal", "loss", "unknown"
 }
 
 class ContextFact(Strict):
@@ -79,6 +79,10 @@ class ContextFact(Strict):
     role: Literal["core", "secondary"] = "core"
     state: Literal["planned", "ongoing", "observed"] = "planned"
     action: Literal["activation", "entry", "exit", "transfer", "restriction", "unknown"] = "unknown"
+    event_type: str = "unknown"
+    subtypes: list[str] = Field(default_factory=list, max_length=20)
+    participant_roles: list[str] = Field(default_factory=list, max_length=20)
+    family_is_subject: bool = False
 
     @field_validator("known_at")
     @classmethod
@@ -87,9 +91,17 @@ class ContextFact(Strict):
 
     @model_validator(mode="after")
     def valid(self):
+        from .taxonomy import EVENT_TYPES, ALL_SUBTYPES
+        if self.event_type not in EVENT_TYPES or any(s not in ALL_SUBTYPES for s in self.subtypes):
+            raise ValueError("unknown event type or subtype")
         if self.primary_domain not in DOMAINS or self.end < self.start:
             raise ValueError("invalid context domain or interval")
         return self
+
+class NegativeControls(Strict):
+    sample_count: int = Field(default=12, ge=4, le=30)
+    radius_days: int = Field(default=30, ge=7, le=180)
+    seed: int = Field(default=17, ge=0, le=2147483647)
 
 class ForecastRequest(Strict):
     birth: Birth
@@ -102,6 +114,7 @@ class ForecastRequest(Strict):
     exclude_families: list[Literal["profection", "dasha", "solar_return", "transit"]] = Field(default_factory=list)
     context: list[ContextFact] = Field(default_factory=list, max_length=100)
     personal_relevance: dict[str, float] = Field(default_factory=dict)
+    negative_controls: NegativeControls | None = None
 
     @field_validator("as_of")
     @classmethod
@@ -110,6 +123,8 @@ class ForecastRequest(Strict):
 
     @model_validator(mode="after")
     def valid(self):
+        if self.negative_controls and (self.start != self.end or self.mode != "astrology_only"):
+            raise ValueError("negative controls require one day in astrology_only mode")
         if self.end < self.start or (self.end - self.start).days > 1095:
             raise ValueError("forecast interval must span 0..1095 days")
         if self.start < self.birth.date or self.end.year > 2098:
