@@ -11,6 +11,7 @@ from .readings import build_readings
 from .diagnostics import diagnostic_views
 from .temporal import daily_views, enrich_ranking, daily_reading
 from .taxonomy import classify_events
+from .expressions import expression_views, attach_reading_expressions
 
 POLICY_PATH=Path(__file__).parent/"policy.json"
 
@@ -41,6 +42,7 @@ class SummerEngine:
                     row["signal_band"]="strong_support_but_unqualified"
         enrich_ranking(domain_ranking,profiles)
         event_types=classify_events(request,candidates)
+        expressions=expression_views(profiles,signals,request)
         qualified=[c for c in candidates if c["status"]=="qualified"]
         ranked=sorted(qualified,key=lambda c:(-c["activation_score"],-c["personal_relevance"],c["forecast_id"]))
         displayed=ranked[:request.max_display]
@@ -63,6 +65,7 @@ class SummerEngine:
             "raw_signals":raw_signals,"domain_ranking":domain_ranking,"raw_windows":windows,
             "daily_domain_profiles":profiles,"daily_trigger_summary":trigger_summary,
             "event_type_classification":event_types,
+            "daily_event_expressions":expressions,
             "all_candidates":[{**c,"personal_relevance":.5} for c in candidates],
             "daily_activation":timeline,
             "diagnostics":{"signal_count":len(signals),"window_count":len(windows),
@@ -76,6 +79,7 @@ class SummerEngine:
         readings=build_readings(candidates,request.max_display,self.policy['ambiguity_margin'],self.policy['qualification_score'])
         if request.start==request.end:
             readings=daily_reading(profiles[0],request,self.policy,request.max_display)
+        attach_reading_expressions(readings,expressions)
         # Immutable computational record is independent of presentation cap/relevance.
         if self.store: self.store.append(run_id,"forecast",request.as_of.isoformat(),core)
         controls=None

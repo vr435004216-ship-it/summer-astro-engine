@@ -4,14 +4,19 @@ EVENT_TYPES = {
     "vehicle_accident", "vehicle_registration_insurance", "property_event", "travel_departure",
     "travel_return", "social_gathering", "bereavement", "funeral", "condolence", "loss",
     "job_start", "work_milestone", "relationship_contact", "relationship_withdrawal",
-    "medical_event", "family_event", "financial_transaction", "unknown"
+    "medical_event", "family_event", "financial_transaction", "unknown",
+    "return_to_work", "workflow_disruption", "access_system_issue", "routine_restart"
 }
 SUBTYPES = {
-    "withdrawal": ["social_withdrawal", "emotional_withdrawal", "physical_retreat", "communication_reduction", "relational_distance"],
+    "withdrawal": ["social_withdrawal", "emotional_withdrawal", "physical_retreat", "communication_reduction", "relational_distance",
+                   "internal_withdrawal", "external_withdrawal", "holding_back", "reduced_openness", "private_processing", "internal_position"],
     "self": ["self_focus", "identity_reassessment", "personal_decision", "boundary_setting", "self_presentation", "autonomy"],
     "financial": ["financial_intent", "purchase_commitment", "actual_transaction", "cash_outflow", "income_inflow"],
     "travel": ["travel_long", "border_crossing", "flight", "road_trip", "travel_short", "local_movement"],
-    "relationship": ["renewed_contact", "ordinary_contact", "emotional_contact", "sexual_contact", "romantic_contact", "conflict", "distancing", "reconciliation"]
+    "relationship": ["renewed_contact", "ordinary_contact", "emotional_contact", "sexual_contact", "romantic_contact", "conflict", "distancing", "reconciliation"],
+    "work": ["return_to_work", "workflow_disruption", "access_system_issue", "routine_restart"],
+    "family": ["family_gathering", "family_meal", "family_reconnection"],
+    "communication": ["ordinary_communication_carrier", "communication_shift", "communication_decision", "communication_conflict"]
 }
 ALL_SUBTYPES = {s for values in SUBTYPES.values() for s in values}
 TYPE_DOMAINS = {
@@ -21,7 +26,9 @@ TYPE_DOMAINS = {
     "property_event": ["property"], "travel_departure": ["travel_short", "travel_long"],
     "travel_return": ["travel_short", "travel_long"], "social_gathering": ["networks", "friendship"],
     "job_start": ["career_role"], "work_milestone": ["career_role", "career_status"],
-    "relationship_contact": ["communication"], "relationship_withdrawal": ["withdrawal"],
+    "return_to_work": ["work_routine"], "workflow_disruption": ["work_routine"],
+    "access_system_issue": ["work_routine"], "routine_restart": ["work_routine"],
+    "relationship_contact": ["partnership"], "relationship_withdrawal": ["withdrawal"],
     "medical_event": ["health"], "family_event": ["family"],
     "bereavement": ["loss"], "funeral": ["loss"], "condolence": ["loss"], "loss": ["loss"]
 }
